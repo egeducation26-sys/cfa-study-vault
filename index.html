@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFA Question Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f1923;
+  --ink-soft: #2d3f50;
+  --ink-faint: #5a6e82;
+  --paper: #f8f5ef;
+  --paper-warm: #f0ebe0;
+  --cream: #e8e2d4;
+  --gold: #b8902a;
+  --gold-light: #d4a843;
+  --blue: #1a3a5c;
+  --blue-mid: #2e5c8a;
+  --blue-light: #4a85c0;
+  --green: #2d6b4a;
+  --red: #8b2020;
+  --border: rgba(90,110,130,0.18);
+  --shadow-sm: 0 1px 4px rgba(15,25,35,0.08);
+  --shadow-md: 0 4px 20px rgba(15,25,35,0.1);
+  --shadow-lg: 0 12px 40px rgba(15,25,35,0.14);
+  --r: 6px;
+  --r-lg: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Source Serif 4', Georgia, serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ─────────────────────────────── */
+header {
+  background: var(--blue);
+  color: white;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-badge {
+  background: var(--gold);
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sync-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 14px;
+  border-radius: var(--r);
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sync-btn:hover { background: rgba(255,255,255,0.18); }
+.sync-btn.spinning svg { animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.progress-pill {
+  background: rgba(255,255,255,0.12);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  color: rgba(255,255,255,0.8);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── LAYOUT ─────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  flex: 1;
+  min-height: calc(100vh - 64px);
+}
+
+/* ── SIDEBAR ────────────────────────────── */
+.sidebar {
+  background: white;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 1.2rem 0;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+}
+
+.sidebar-section { margin-bottom: 0.25rem; }
+
+.vol-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.vol-header:hover { background: var(--paper-warm); }
+.vol-header.active { border-left-color: var(--gold); background: rgba(184,144,42,0.06); }
+
+.vol-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.vol-sub {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+.vol-arrow {
+  color: var(--ink-faint);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.vol-header.open .vol-arrow { transform: rotate(90deg); }
+
+.chapters-list { display: none; }
+.chapters-list.open { display: block; }
+
+.chap-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.2rem 0.55rem 2rem;
+  cursor: pointer;
+  font-size: 0.83rem;
+  color: var(--ink-soft);
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.chap-item:hover { background: var(--paper-warm); color: var(--ink); }
+
+.chap-item.active {
+  background: rgba(26,58,92,0.07);
+  border-left-color: var(--blue-mid);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.chap-badge {
+  margin-left: auto;
+  background: var(--cream);
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.chap-item.active .chap-badge {
+  background: var(--blue-mid);
+  color: white;
+}
+
+/* ── MAIN CONTENT ───────────────────────── */
+.main {
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  max-width: 900px;
+}
+
+/* ── WELCOME ─────────────────────────────── */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.welcome-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.welcome h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--blue);
+}
+
+.welcome p {
+  color: var(--ink-faint);
+  font-size: 1rem;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* ── CHAPTER HEADER ──────────────────────── */
+.chapter-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--cream);
+}
+
+.chapter-breadcrumb {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.03em;
+}
+
+.chapter-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.chapter-meta {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+}
+
+/* ── TESTS TABS ──────────────────────────── */
+.tests-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.test-tab {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--ink-soft);
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.test-tab:hover { border-color: var(--blue-light); color: var(--blue); }
+
+.test-tab.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+
+.test-tab .q-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+/* ── QUIZ CONTROLS ───────────────────────── */
+.quiz-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 9px 20px;
+  border-radius: var(--r);
+  border: none;
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover { background: var(--blue-mid); box-shadow: var(--shadow-md); }
+
+.btn-secondary {
+  background: white;
+  color: var(--ink-soft);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--blue-light); color: var(--blue); background: var(--paper); }
+
+.btn-gold {
+  background: var(--gold);
+  color: white;
+}
+.btn-gold:hover { background: var(--gold-light); }
+
+.quiz-progress {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  background: var(--cream);
+  padding: 6px 12px;
+  border-radius: var(--r);
+}
+
+/* ── QUESTION CARD ───────────────────────── */
+.question-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+}
+
+.question-card:hover { box-shadow: var(--shadow-md); }
+
+.q-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.q-number::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cream);
+}
+
+.q-text {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--r);
+  border: 1.5px solid var(--cream);
+  cursor: pointer;
+  transition: all 0.18s;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.option:hover { border-color: var(--blue-light); background: rgba(74,133,192,0.04); color: var(--ink); }
+
+.option.selected { border-color: var(--blue-mid); background: rgba(26,58,92,0.06); color: var(--ink); }
+.option.correct { border-color: var(--green); background: rgba(45,107,74,0.07); color: var(--green); }
+.option.wrong { border-color: var(--red); background: rgba(139,32,32,0.06); color: var(--red); }
+.option.reveal-correct { border-color: var(--green); background: rgba(45,107,74,0.07); color: var(--green); }
+
+.opt-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  min-width: 22px;
+  padding-top: 1px;
+  color: var(--ink-faint);
+}
+
+.option.correct .opt-label,
+.option.reveal-correct .opt-label { color: var(--green); }
+.option.wrong .opt-label { color: var(--red); }
+.option.selected .opt-label { color: var(--blue-mid); }
+
+.explanation-box {
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  background: rgba(26,58,92,0.04);
+  border-left: 3px solid var(--blue-mid);
+  border-radius: 0 var(--r) var(--r) 0;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  display: none;
+}
+
+.explanation-box.visible { display: block; }
+
+.explanation-box strong {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* ── RESULT CARD ──────────────────────────── */
+.result-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  border: 5px solid;
+}
+
+.score-circle.excellent { border-color: var(--green); color: var(--green); }
+.score-circle.good { border-color: var(--gold); color: var(--gold); }
+.score-circle.needs-work { border-color: var(--red); color: var(--red); }
+
+.score-pct {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.7;
+}
+
+.result-message {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.result-sub { color: var(--ink-faint); font-size: 0.9rem; }
+
+/* ── SETUP SCREEN ─────────────────────────── */
+.setup-screen {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.setup-screen h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--blue);
+  margin-bottom: 0.5rem;
+}
+
+.setup-screen p {
+  color: var(--ink-faint);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.url-input-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.url-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: var(--paper);
+  transition: border-color 0.2s;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: var(--blue-light);
+}
+
+.url-input::placeholder { color: var(--ink-faint); }
+
+.setup-steps {
+  counter-reset: step;
+  margin-top: 1.5rem;
+}
+
+.setup-step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--paper);
+  border-radius: var(--r);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.step-num {
+  counter-increment: step;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.code-block {
+  background: var(--ink);
+  color: #a8d8a8;
+  padding: 1rem 1.2rem;
+  border-radius: var(--r);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  white-space: pre;
+}
+
+/* ── LOADING ──────────────────────────────── */
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 0.5rem;
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--cream);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── EMPTY / ERROR ───────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--ink-faint);
+}
+
+.empty-state svg { opacity: 0.3; margin-bottom: 1rem; }
+.empty-state h3 { font-family: 'Playfair Display', serif; color: var(--ink-soft); margin-bottom: 0.5rem; }
+
+.error-banner {
+  background: rgba(139,32,32,0.06);
+  border: 1px solid rgba(139,32,32,0.2);
+  color: var(--red);
+  padding: 0.75rem 1rem;
+  border-radius: var(--r);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+/* ── SCROLLBAR ───────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cream); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+/* ── RESPONSIVE ──────────────────────────── */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: relative; height: auto; top: 0; max-height: 280px; }
+  .main { padding: 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>
+    CFA Study Vault
+    <span class="logo-badge">LEVEL I</span>
+  </div>
+  <div class="header-right">
+    <span class="progress-pill" id="headerProgress">—</span>
+    <button class="sync-btn" id="syncBtn" onclick="syncFromDrive()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      Sync Drive
+    </button>
+  </div>
+</header>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div id="sidebarContent">
+      <div class="loader">
+        <div class="spinner"></div> Loading…
+      </div>
+    </div>
+  </nav>
+
+  <main class="main" id="mainContent">
+    <!-- content injected here -->
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG — paste your Apps Script Web App URL here
+// ═══════════════════════════════════════════════════
+let APPS_SCRIPT_URL = localStorage.getItem("cfaScriptUrl") || "";
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let state = {
+  structure: null,
+  activeVolIdx: null,
+  activeChapIdx: null,
+  activeTestId: null,
+  activeTestData: null,
+  mode: "browse", // browse | quiz | review
+  answers: {},
+  submitted: false,
+  quizOrder: [],
+};
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+window.onload = () => {
+  if (!APPS_SCRIPT_URL) {
+    renderSetupScreen();
+  } else {
+    syncFromDrive();
+  }
+};
+
+// ═══════════════════════════════════════════════════
+//  SYNC / FETCH STRUCTURE
+// ═══════════════════════════════════════════════════
+async function syncFromDrive() {
+  if (!APPS_SCRIPT_URL) { renderSetupScreen(); return; }
+
+  const btn = document.getElementById("syncBtn");
+  btn.classList.add("spinning");
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getStructure`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    state.structure = data;
+    renderSidebar();
+    renderWelcome();
+    updateHeaderProgress();
+  } catch (err) {
+    renderError(err.message);
+  } finally {
+    btn.classList.remove("spinning");
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  SIDEBAR
+// ═══════════════════════════════════════════════════
+function renderSidebar() {
+  const el = document.getElementById("sidebarContent");
+  if (!state.structure || !state.structure.volumes?.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:2rem 1rem">
+      <p style="font-size:0.82rem">No volumes found.<br>Check your Drive folder structure.</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = state.structure.volumes.map((vol, vi) => `
+    <div class="sidebar-section">
+      <div class="vol-header ${state.activeVolIdx === vi ? "active" : ""} ${state.activeVolIdx === vi ? "open" : ""}"
+           onclick="toggleVolume(${vi})">
+        <div>
+          <div class="vol-title">${vol.name}</div>
+          <div class="vol-sub">${vol.chapters.length} chapters</div>
+        </div>
+        <svg class="vol-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+      <div class="chapters-list ${state.activeVolIdx === vi ? "open" : ""}">
+        ${vol.chapters.map((chap, ci) => `
+          <div class="chap-item ${state.activeVolIdx === vi && state.activeChapIdx === ci ? "active" : ""}"
+               onclick="selectChapter(${vi}, ${ci})">
+            ${chap.name.replace(/^Chapter\s*\d+\s*[-–]\s*/i, "")}
+            <span class="chap-badge">${chap.tests.length}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggleVolume(vi) {
+  state.activeVolIdx = state.activeVolIdx === vi ? null : vi;
+  state.activeChapIdx = null;
+  renderSidebar();
+  renderWelcome();
+}
+
+function selectChapter(vi, ci) {
+  state.activeVolIdx = vi;
+  state.activeChapIdx = ci;
+  state.activeTestId = null;
+  state.activeTestData = null;
+  state.mode = "browse";
+  renderSidebar();
+  renderChapterView();
+}
+
+// ═══════════════════════════════════════════════════
+//  MAIN VIEWS
+// ═══════════════════════════════════════════════════
+function renderWelcome() {
+  const el = document.getElementById("mainContent");
+  const total = state.structure?.volumes?.reduce((a, v) =>
+    a + v.chapters.reduce((b, c) => b + c.tests.length, 0), 0) || 0;
+
+  el.innerHTML = `
+    <div class="welcome">
+      <div class="welcome-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+      <h1>CFA Study Vault</h1>
+      <p>${total > 0 ? `${total} test${total !== 1 ? "s" : ""} loaded across ${state.structure.volumes.length} volumes. Select a chapter to begin.` :
+        "Connect your Google Drive to load your question bank."}</p>
+      ${total > 0 ? `<div style="display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center">
+        ${state.structure.volumes.map(v => `<div style="text-align:center">
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue)">${v.chapters.length}</div>
+          <div style="font-size:0.75rem;color:var(--ink-faint)">${v.name.replace(/Volume \d+ - /i,"")}</div>
+        </div>`).join("")}
+      </div>` : ""}
+    </div>
+  `;
+}
+
+function renderChapterView() {
+  const vol = state.structure.volumes[state.activeVolIdx];
+  const chap = vol.chapters[state.activeChapIdx];
+  const el = document.getElementById("mainContent");
+
+  el.innerHTML = `
+    <div class="chapter-header">
+      <div class="chapter-breadcrumb">${vol.name} › ${chap.name.match(/Chapter \d+/i)?.[0] || "Chapter"}</div>
+      <h2 class="chapter-title">${chap.name.replace(/^Chapter\s*\d+\s*[-–]\s*/i, "")}</h2>
+      <div class="chapter-meta">
+        <span class="meta-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          </svg>
+          ${chap.tests.length} test${chap.tests.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+    </div>
+
+    <div class="tests-tabs" id="testsTabs">
+      ${chap.tests.map((t, ti) => `
+        <button class="test-tab ${state.activeTestId === t.id ? "active" : ""}"
+                onclick="loadTest('${t.id}', '${escHtml(t.name)}')">
+          ${t.name.replace(/\.docx$/i, "")}
+        </button>
+      `).join("")}
+    </div>
+
+    <div id="testArea">
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <h3>Select a Test</h3>
+        <p style="font-size:0.82rem">Click a test tab above to load questions</p>
+      </div>
+    </div>
+  `;
+}
+
+async function loadTest(fileId, fileName) {
+  state.activeTestId = fileId;
+  state.mode = "browse";
+  state.answers = {};
+  state.submitted = false;
+
+  // Update tabs UI
+  document.querySelectorAll(".test-tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+
+  const area = document.getElementById("testArea");
+  area.innerHTML = `<div class="loader"><div class="spinner"></div> Loading questions…</div>`;
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getTest&fileId=${fileId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    if (!data.questions?.length) throw new Error("No questions found. Check your doc format.");
+
+    state.activeTestData = data;
+    state.quizOrder = data.questions.map((_, i) => i);
+    renderQuizControls(area);
+  } catch (err) {
+    area.innerHTML = `<div class="error-banner">⚠ ${err.message}</div>
+      <div class="empty-state"><p style="font-size:0.82rem">Make sure your document follows the required format.</p></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════════
+function renderQuizControls(container) {
+  const d = state.activeTestData;
+  container.innerHTML = `
+    <div class="quiz-controls">
+      <button class="btn btn-primary" onclick="startQuiz(false)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Start Quiz
+      </button>
+      <button class="btn btn-secondary" onclick="startQuiz(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Shuffle Mode
+      </button>
+      <button class="btn btn-secondary" onclick="reviewMode()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Review All
+      </button>
+      <span class="quiz-progress">${d.total} Questions</span>
+    </div>
+    <div id="questionsContainer"></div>
+  `;
+}
+
+function startQuiz(shuffle) {
+  state.mode = "quiz";
+  state.answers = {};
+  state.submitted = false;
+  state.quizOrder = state.activeTestData.questions.map((_, i) => i);
+  if (shuffle) state.quizOrder = state.quizOrder.sort(() => Math.random() - 0.5);
+  renderQuestions(false);
+}
+
+function reviewMode() {
+  state.mode = "review";
+  state.answers = {};
+  state.submitted = false;
+  state.quizOrder = state.activeTestData.questions.map((_, i) => i);
+  renderQuestions(true);
+}
+
+function renderQuestions(showAnswers) {
+  const container = document.getElementById("questionsContainer");
+  if (!container) return;
+
+  const qs = state.activeTestData.questions;
+  const submitBar = state.mode === "quiz" && !state.submitted ? `
+    <div style="margin-top:2rem;display:flex;gap:1rem;align-items:center">
+      <button class="btn btn-gold" onclick="submitQuiz()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Submit Answers
+      </button>
+      <span style="font-size:0.82rem;color:var(--ink-faint)">
+        ${Object.keys(state.answers).length} / ${qs.length} answered
+      </span>
+    </div>
+  ` : "";
+
+  container.innerHTML = state.quizOrder.map((qi, displayIdx) => {
+    const q = qs[qi];
+    return renderQuestionCard(q, qi, displayIdx, showAnswers);
+  }).join("") + submitBar;
+}
+
+function renderQuestionCard(q, qi, displayIdx, showAnswers) {
+  const userAns = state.answers[qi];
+  const correct = q.answer?.toUpperCase();
+  const isSubmitted = state.submitted || showAnswers;
+
+  const opts = ["A","B","C","D"].filter(k => q.options[k]);
+
+  const optHtml = opts.map(k => {
+    let cls = "";
+    if (isSubmitted) {
+      if (k === correct) cls = "reveal-correct";
+      if (k === userAns && k !== correct) cls = "wrong";
+    } else if (k === userAns) {
+      cls = "selected";
+    }
+    return `
+      <div class="option ${cls}" onclick="selectAnswer(${qi}, '${k}', this)" data-key="${k}">
+        <span class="opt-label">${k}</span>
+        <span>${escHtml(q.options[k])}</span>
+      </div>
+    `;
+  }).join("");
+
+  const expHtml = isSubmitted && q.explanation ? `
+    <div class="explanation-box visible">
+      <strong>Explanation:</strong> ${escHtml(q.explanation)}
+    </div>
+  ` : "";
+
+  return `
+    <div class="question-card" id="qcard-${qi}">
+      <div class="q-number">QUESTION ${displayIdx + 1}</div>
+      <div class="q-text">${escHtml(q.text)}</div>
+      <div class="options">${optHtml}</div>
+      ${expHtml}
+    </div>
+  `;
+}
+
+function selectAnswer(qi, key, el) {
+  if (state.submitted || state.mode === "review") return;
+  state.answers[qi] = key;
+
+  // Update UI for this card only
+  const card = document.getElementById(`qcard-${qi}`);
+  card.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+  el.classList.add("selected");
+
+  // Update submit bar count
+  const submitBar = document.querySelector(".quiz-controls + div .btn-gold")?.closest("div")?.querySelector("span");
+  if (submitBar) submitBar.textContent = `${Object.keys(state.answers).length} / ${state.activeTestData.questions.length} answered`;
+}
+
+function submitQuiz() {
+  state.submitted = true;
+  const qs = state.activeTestData.questions;
+  let correct = 0;
+  state.quizOrder.forEach(qi => {
+    if (state.answers[qi]?.toUpperCase() === qs[qi].answer?.toUpperCase()) correct++;
+  });
+  const pct = Math.round((correct / qs.length) * 100);
+
+  const cls = pct >= 80 ? "excellent" : pct >= 60 ? "good" : "needs-work";
+  const msg = pct >= 80 ? "Excellent work!" : pct >= 60 ? "Good effort!" : "Keep studying!";
+
+  const container = document.getElementById("questionsContainer");
+  const resultHtml = `
+    <div class="result-card">
+      <div class="score-circle ${cls}">
+        <span class="score-pct">${pct}%</span>
+        <span class="score-label">SCORE</span>
+      </div>
+      <div class="result-message">${msg}</div>
+      <div class="result-sub">${correct} of ${qs.length} correct</div>
+      <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-secondary" onclick="startQuiz(false)">Retry</button>
+        <button class="btn btn-secondary" onclick="startQuiz(true)">Shuffle Retry</button>
+        <button class="btn btn-primary" onclick="reviewAfterSubmit()">Review Answers</button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = resultHtml + container.innerHTML;
+  // Re-render questions with reveal
+  const cards = container.querySelectorAll(".question-card");
+  state.quizOrder.forEach((qi, di) => {
+    const q = qs[qi];
+    const cardEl = document.getElementById(`qcard-${qi}`);
+    if (cardEl) {
+      cardEl.querySelector(".options").innerHTML = renderOptionsHtml(q, qi);
+      if (q.explanation) {
+        const existing = cardEl.querySelector(".explanation-box");
+        if (!existing) {
+          cardEl.insertAdjacentHTML("beforeend", `<div class="explanation-box visible"><strong>Explanation:</strong> ${escHtml(q.explanation)}</div>`);
+        } else {
+          existing.classList.add("visible");
+        }
+      }
+    }
+  });
+}
+
+function renderOptionsHtml(q, qi) {
+  const userAns = state.answers[qi];
+  const correct = q.answer?.toUpperCase();
+  return ["A","B","C","D"].filter(k => q.options[k]).map(k => {
+    let cls = "";
+    if (k === correct) cls = "reveal-correct";
+    if (k === userAns && k !== correct) cls = "wrong";
+    return `<div class="option ${cls}" data-key="${k}">
+      <span class="opt-label">${k}</span>
+      <span>${escHtml(q.options[k])}</span>
+    </div>`;
+  }).join("");
+}
+
+function reviewAfterSubmit() {
+  document.querySelector(".result-card")?.remove();
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════
+//  SETUP SCREEN
+// ═══════════════════════════════════════════════════
+function renderSetupScreen() {
+  document.getElementById("sidebarContent").innerHTML = `
+    <div style="padding:1rem;font-size:0.82rem;color:var(--ink-faint);text-align:center">
+      Connect Google Drive<br>to load your bank
+    </div>
+  `;
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="setup-screen">
+      <h2>Connect Your Google Drive</h2>
+      <p>Paste your Google Apps Script Web App URL below to connect your question bank. You only need to do this once.</p>
+      <div class="url-input-row">
+        <input class="url-input" id="scriptUrlInput" type="url"
+               placeholder="https://script.google.com/macros/s/…/exec"
+               value="${escHtml(APPS_SCRIPT_URL)}">
+        <button class="btn btn-primary" onclick="saveScriptUrl()">Connect</button>
+      </div>
+
+      <hr style="margin:2rem 0;border:none;border-top:1px solid var(--cream)">
+
+      <h2 style="margin-bottom:0.75rem">Setup Guide</h2>
+
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-num">1</div>
+          <div>Create a folder in Google Drive named exactly: <strong>CFA Question Bank</strong></div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">2</div>
+          <div>Inside it, create folders like:<br>
+            <code style="font-family:JetBrains Mono,monospace;font-size:0.8rem">Volume 1 - Quantitative Methods/Chapter 1 - TVM/Test 1.docx</code>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">3</div>
+          <div>Go to <a href="https://script.google.com" target="_blank" style="color:var(--blue)">script.google.com</a>, create a new project, and paste the <strong>Code.gs</strong> file contents.</div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">4</div>
+          <div>Click <strong>Deploy → New Deployment → Web App</strong>. Set "Execute as: Me" and "Who has access: Anyone". Copy the URL.</div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">5</div>
+          <div>Enable the <strong>Drive API</strong> and <strong>Google Docs API</strong> in Services (left sidebar in Apps Script).</div>
+        </div>
+      </div>
+
+      <hr style="margin:2rem 0;border:none;border-top:1px solid var(--cream)">
+
+      <h2 style="margin-bottom:0.75rem">Word Doc Format</h2>
+      <p>Each .docx file should follow this format exactly:</p>
+      <div class="code-block">Q1. Which of the following best describes the time value of money?
+A) Money today is worth more than the same amount in the future
+B) Money in the future is worth more than money today
+C) Money has the same value regardless of time
+D) None of the above
+ANSWER: A
+EXPLANATION: Money available now is worth more because it can be invested
+and earn returns. This is the fundamental principle of TVM.
+
+Q2. What is compound interest?
+A) Interest calculated only on the principal
+B) Interest on interest plus principal
+C) A fixed annual payment
+D) The discount rate
+ANSWER: B
+EXPLANATION: Compound interest is calculated on both the principal and
+previously accumulated interest.</div>
+    </div>
+  `;
+}
+
+function saveScriptUrl() {
+  const url = document.getElementById("scriptUrlInput").value.trim();
+  if (!url || !url.startsWith("https://script.google.com")) {
+    alert("Please enter a valid Google Apps Script URL");
+    return;
+  }
+  APPS_SCRIPT_URL = url;
+  localStorage.setItem("cfaScriptUrl", url);
+  syncFromDrive();
+}
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function renderError(msg) {
+  document.getElementById("mainContent").innerHTML = `
+    <div class="error-banner">⚠ Error: ${escHtml(msg)}</div>
+    <div class="empty-state">
+      <h3>Could not load data</h3>
+      <p style="font-size:0.82rem">Check that your Apps Script URL is correct and the deployment is active.</p>
+      <br>
+      <button class="btn btn-secondary" onclick="renderSetupScreen()">Edit Settings</button>
+    </div>
+  `;
+}
+
+function updateHeaderProgress() {
+  if (!state.structure) return;
+  const vols = state.structure.volumes.length;
+  const tests = state.structure.volumes.reduce((a, v) =>
+    a + v.chapters.reduce((b, c) => b + c.tests.length, 0), 0);
+  document.getElementById("headerProgress").textContent = `${vols}V · ${tests}T`;
+}
+
+function escHtml(str) {
+  if (!str) return "";
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+            .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+</script>
+</body>
+</html>
